@@ -1,0 +1,7 @@
+[user]
+	email = yann.lambret@gmail.com
+	name = Yann Lambret
+[core]
+	editor = vim
+[pull]
+	rebase = true

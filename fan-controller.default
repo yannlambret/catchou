@@ -1,0 +1,3 @@
+#-- /etc/default/fan-controller
+FAN_CONTROLLER_OPTS="--min-dc=20 --max-dc=40"
+
