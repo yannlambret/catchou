@@ -1,8 +1,8 @@
 """Fan speed controller for Raspberry Pi 4.
 
 Usage:
-  fan_controller.py --min-dc=<n> --max-dc=<n> [--precision=<n>] [--pwm-pin=<n>] [--pwm-freq=<n>] [--debug]
-  fan_controller.py (-h | --help)
+  fan-controller.py --min-dc=<n> --max-dc=<n> [--precision=<n>] [--pwm-pin=<n>] [--pwm-freq=<n>] [--debug]
+  fan-controller.py (-h | --help)
 
 Options:
   -h --help        Show this help message and exit.
