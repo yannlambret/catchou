@@ -7,7 +7,7 @@ After=cron.service
 
 [Service]
 EnvironmentFile=-/etc/default/fan-controller
-ExecStart=/usr/bin/python3 /usr/bin/fan-controller $FAN_CONTROLLER_OPTS
+ExecStart=/usr/bin/fan-controller $FAN_CONTROLLER_OPTS
 Restart=always
 
 [Install]

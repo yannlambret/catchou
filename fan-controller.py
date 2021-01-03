@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Fan speed controller for Raspberry Pi 4.
 
 Usage:

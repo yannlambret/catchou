@@ -22,7 +22,6 @@ $ git clone https://github.com/yannlambret/catchou.git && cd catchou
 $ sudo cp fan-controller.default /etc/default/fan-controller
 $ sudo cp fan-controller.py /usr/bin/fan-controller
 $ sudo cp fan-controller.service /etc/systemd/system/
-$ sudo chmod +x /usr/bin/fan-controller
 ```
 
 Edit ```/etc/default/fan-controller``` with the desired values. You can
