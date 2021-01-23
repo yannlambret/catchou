@@ -31,7 +31,8 @@ import pigpio
 from docopt import docopt
 from docopt import  DocoptExit
 from gpiozero import CPUTemperature
-from retrying import retry
+from tenacity import retry
+from tenacity import wait_exponential
 
 
 # pylint: disable=invalid-name
@@ -116,14 +117,14 @@ class FanController():
         # in a dedicated method (see below)
         self._pi = None
 
-    @retry(wait_fixed=1000, retry_on_exception=lambda e: isinstance(e, RuntimeError))
+    @retry(wait=wait_exponential(max=5))
     def pigpio_setup(self):
         """GPIO setup."""
         # The retrying setup is here to prevent a controller
         # failure if pigpiod daemon is not running yet
         self._pi = pigpio.pi(show_errors=False)
         if not self._pi.connected:
-            logger.debug('cannot connect to pigpio daemon, waiting for 1 second...')
+            logger.debug('cannot connect to pigpio daemon, waiting...')
             raise RuntimeError
         self._pi.set_PWM_frequency(self._cfg.pwm_pin, self._cfg.pwm_freq)
         self._pi.set_PWM_range(self._cfg.pwm_pin, 100)
@@ -157,25 +158,29 @@ if __name__ == '__main__':
         arguments = docopt(__doc__)
     except DocoptExit as e:
         sys.exit(e)
+    # CLI options validation
+    for k, v in arguments.items():
+        if not isinstance(v, bool) and not v.isdigit():
+            error = 'Error: option \'{}\' value is not a valid number'.format(k)
+            raise SystemExit(error)
     args = {
         re.sub(r'-{1,2}', lambda m: '_' if m.group(0) == '-' else '', k): int(v)
         for k, v in arguments.items()
     }
-    # CLI options validation
     if args.get('precision') not in [5, 10, 25, 50]:
         error = 'Error: invalid precision value. Valid values are 5, 10, 25, and 50.'
         raise SystemExit(error)
     if args.get('min_dc') not in range(0, 96):
-        error = 'Error: min duty cycle should belong to [0,95]'
+        error = 'Error: min duty cycle value should belong to [0,95]'
         raise SystemExit(error)
     if args.get('max_dc') not in range(5, 101):
-        error = 'Error: max duty cycle should belong to [5,100]'
+        error = 'Error: max duty cycle value should belong to [5,100]'
         raise SystemExit(error)
     if args.get('min_dc') >= args.get('max_dc'):
-        error = 'Error: min duty cycle should be less than max duty cycle.'
+        error = 'Error: min duty cycle value should be less than max duty cycle value.'
         raise SystemExit(error)
-    if (args.get('max_dc')-args.get('min_dc')) % args.get('precision') != 0:
-        error = 'Error: duty cycle range should be a multiple of precision.'
+    if (args.get('max_dc')-args.get('min_dc')) % args.get('precision'):
+        error = 'Error: duty cycle range should be a multiple of precision value.'
         raise SystemExit(error)
     # Set logging level
     logging_level = logging.DEBUG if args.get('debug') else logging.INFO
