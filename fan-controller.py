@@ -65,46 +65,24 @@ logger.addHandler(handler)
 class FanControllerCfg():
     """Wrapper for controller runtime values."""
     def __init__(self, params):
+        self.pwm_pin = params.get('pwm_pin')
+        self.pwm_freq = params.get('pwm_freq')
         # From 0°C up to 30+(max_temp-min_temp)//precision°C,
         # min_dc will be applied
         self.min_temp = 30
         # Starting from 80°C, max_dc will be applied
         self.max_temp = 80
         self.temp_step = (self.max_temp-self.min_temp)//params.get('precision')
-        self._temp_range = list(
+        # Create a mapping between the different temperature levels
+        # and specific duty cycle values
+        temp_range = list(
             range(self.min_temp, self.max_temp+self.temp_step, self.temp_step)
         )
-        self._dc_step = (params.get('max_dc')-params.get('min_dc'))//params.get('precision')
-        self._dc_range = list(
-            range(params.get('min_dc'), params.get('max_dc')+self._dc_step, self._dc_step)
+        dc_step = (params.get('max_dc')-params.get('min_dc'))//params.get('precision')
+        dc_range = list(
+            range(params.get('min_dc'), params.get('max_dc')+dc_step, dc_step)
         )
-        self._params = params
-
-    @property
-    def pwm_pin(self):
-        # pylint: disable=missing-docstring
-        return self._params.get('pwm_pin')
-
-    @property
-    def pwm_freq(self):
-        # pylint: disable=missing-docstring
-        return self._params.get('pwm_freq')
-
-    @property
-    def min_dc(self):
-        # pylint: disable=missing-docstring
-        return self._params.get('min_dc')
-
-    @property
-    def max_dc(self):
-        # pylint: disable=missing-docstring
-        return self._params.get('max_dc')
-
-    @property
-    def runtime_values(self):
-        """Create a mapping between temperature steps and specific duty cycle values."""
-        return dict(zip(self._temp_range, self._dc_range))
-
+        self.runtime_values = dict(zip(temp_range, dc_range))
 
 
 class FanController():
